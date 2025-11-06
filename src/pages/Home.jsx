@@ -1,35 +1,33 @@
 
-
-
 import React, { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import ProductCard from "../components/ProductCard";
+import FilterSort from "../components/FilterShot";
 
 const Home = () => {
   const [products, setProducts] = useState([]);
+  const [filteredProducts, setFilteredProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("all");
-  const [showMoreCategories, setShowMoreCategories] = useState(false);
+  const [showCategories, setShowCategories] = useState(true);
   const [currentBanner, setCurrentBanner] = useState(0);
 
-  // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
-  const productsPerPage = 12; // Show 12 products per page
+  const productsPerPage = 12;
 
-  const location = useLocation();
   const navigate = useNavigate();
+  const location = useLocation();
 
-  // Real working HD fashion offer banners (Unsplash)
   const banners = [
     "https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?auto=format&fit=crop&w=1200&q=80",
     "https://images.unsplash.com/photo-1521334884684-d80222895322?auto=format&fit=crop&w=1200&q=80",
   ];
 
-  // Get search query from URL
+  // Search query from Navbar
   const queryParams = new URLSearchParams(location.search);
   const searchQuery = queryParams.get("search")?.toLowerCase() || "";
 
-  // Fetch products
+  // Fetch products and categories
   useEffect(() => {
     fetch("https://dummyjson.com/products?limit=100")
       .then((res) => res.json())
@@ -44,36 +42,40 @@ const Home = () => {
               : `https://picsum.photos/200/200?random=${p.id}`,
           description: p.description,
           category: p.category,
+          rating: p.rating,
         }));
+
         setProducts(formattedProducts);
+        setFilteredProducts(formattedProducts);
 
         const uniqueCategories = Array.from(
           new Set(data.products.map((p) => p.category))
         );
         setCategories(uniqueCategories);
       })
-      .catch((err) => console.error("Failed to fetch products:", err));
+      .catch((err) => console.error(err));
   }, []);
 
-  // Filter products by category and search term
-  const filteredProducts = products.filter((p) => {
-    const matchesCategory =
-      selectedCategory === "all" || p.category === selectedCategory;
-    const matchesSearch = searchQuery
-      ? p.title.toLowerCase().includes(searchQuery) ||
-        p.category.toLowerCase().includes(searchQuery)
-      : true;
-    return matchesCategory && matchesSearch;
-  });
-
-  // Remove search query from URL if empty
+  // Search filter
   useEffect(() => {
-    if (!searchQuery && location.search) {
-      navigate("/", { replace: true });
-    }
-  }, [searchQuery, location.search, navigate]);
+    if (!products.length) return;
 
-  // Banner slider auto change
+    let updated = [...products];
+
+    if (searchQuery) {
+      updated = updated.filter((p) =>
+        p.title.toLowerCase().includes(searchQuery)
+      );
+    }
+
+    if (selectedCategory !== "all") {
+      updated = updated.filter((p) => p.category === selectedCategory);
+    }
+
+    setFilteredProducts(updated);
+  }, [searchQuery, selectedCategory, products]);
+
+  // Banner slider
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentBanner((prev) => (prev + 1) % banners.length);
@@ -92,20 +94,15 @@ const Home = () => {
   const handleNext = () => {
     if (currentPage < totalPages) setCurrentPage((prev) => prev + 1);
   };
-
   const handlePrev = () => {
     if (currentPage > 1) setCurrentPage((prev) => prev - 1);
   };
 
-  // Reset to page 1 when category or search changes
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [selectedCategory, searchQuery]);
+  useEffect(() => setCurrentPage(1), [filteredProducts]);
 
-  // Categories
-  const maxVisible = 6;
-  const visibleCategories = categories.slice(0, maxVisible);
-  const hiddenCategories = categories.slice(maxVisible);
+  const handleCategoryClick = (cat) => {
+    setSelectedCategory(cat);
+  };
 
   return (
     <div className="p-6">
@@ -123,60 +120,49 @@ const Home = () => {
         ))}
       </div>
 
-      {/* Categories */}
-      <div className="flex flex-wrap items-center gap-2 mb-6">
+      {/* Toggle Categories */}
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-2xl font-bold">Shop by Category</h2>
         <button
-          className={`px-3 py-1 rounded ${
-            selectedCategory === "all"
-              ? "bg-pink-600 text-white"
-              : "bg-gray-200"
-          }`}
-          onClick={() => setSelectedCategory("all")}
+          className="px-3 py-1 rounded bg-pink-600 text-white"
+          onClick={() => setShowCategories(!showCategories)}
         >
-          All
+          {showCategories ? "Hide" : "Category"}
         </button>
-
-        {visibleCategories.map((cat, index) => (
-          <button
-            key={index}
-            className={`px-3 py-1 rounded ${
-              selectedCategory === cat
-                ? "bg-pink-600 text-white"
-                : "bg-gray-200"
-            }`}
-            onClick={() => setSelectedCategory(cat)}
-          >
-            {cat.charAt(0).toUpperCase() + cat.slice(1)}
-          </button>
-        ))}
-
-        {hiddenCategories.length > 0 && (
-          <>
-            {showMoreCategories &&
-              hiddenCategories.map((cat, index) => (
-                <button
-                  key={`hidden-${index}`}
-                  className={`px-3 py-1 rounded ${
-                    selectedCategory === cat
-                      ? "bg-pink-600 text-white"
-                      : "bg-gray-200"
-                  }`}
-                  onClick={() => setSelectedCategory(cat)}
-                >
-                  {cat.charAt(0).toUpperCase() + cat.slice(1)}
-                </button>
-              ))}
-            <button
-              className="px-3 py-1 rounded bg-gray-300"
-              onClick={() => setShowMoreCategories(!showMoreCategories)}
-            >
-              {showMoreCategories ? "Less" : "More"}
-            </button>
-          </>
-        )}
       </div>
 
-      {/* Search result heading */}
+      {showCategories && (
+        <div className="flex flex-wrap gap-3 mb-6">
+          <div
+            onClick={() => handleCategoryClick("all")}
+            className={`cursor-pointer px-4 py-2 rounded ${
+              selectedCategory === "all"
+                ? "bg-pink-600 text-white"
+                : "bg-gray-200 hover:bg-pink-100"
+            }`}
+          >
+            All
+          </div>
+          {categories.map((cat) => (
+            <div
+              key={cat}
+              onClick={() => handleCategoryClick(cat)}
+              className={`cursor-pointer px-4 py-2 rounded capitalize ${
+                selectedCategory === cat
+                  ? "bg-pink-600 text-white"
+                  : "bg-gray-100 hover:bg-pink-100"
+              }`}
+            >
+              {cat}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Filter & Sort */}
+      <FilterSort products={products} onFilter={setFilteredProducts} />
+
+      {/* Search heading */}
       {searchQuery && (
         <h2 className="text-xl font-semibold mb-4">
           Showing results for:{" "}
@@ -185,17 +171,17 @@ const Home = () => {
       )}
 
       {/* Product Grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6 mt-4">
         {paginatedProducts.length > 0 ? (
           paginatedProducts.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))
         ) : (
-          <p className="text-gray-600">No products found for your search.</p>
+          <p className="text-gray-600">No products found.</p>
         )}
       </div>
 
-      {/* Pagination Controls */}
+      {/* Pagination */}
       {totalPages > 1 && (
         <div className="flex justify-center items-center gap-4 mt-8">
           <button
