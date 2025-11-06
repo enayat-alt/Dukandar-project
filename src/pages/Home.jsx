@@ -1,5 +1,6 @@
 
 
+
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import ProductCard from "../components/ProductCard";
@@ -10,6 +11,10 @@ const Home = () => {
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [showMoreCategories, setShowMoreCategories] = useState(false);
   const [currentBanner, setCurrentBanner] = useState(0);
+
+  // Pagination states
+  const [currentPage, setCurrentPage] = useState(1);
+  const productsPerPage = 12; // Show 12 products per page
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -52,7 +57,8 @@ const Home = () => {
 
   // Filter products by category and search term
   const filteredProducts = products.filter((p) => {
-    const matchesCategory = selectedCategory === "all" || p.category === selectedCategory;
+    const matchesCategory =
+      selectedCategory === "all" || p.category === selectedCategory;
     const matchesSearch = searchQuery
       ? p.title.toLowerCase().includes(searchQuery) ||
         p.category.toLowerCase().includes(searchQuery)
@@ -71,9 +77,30 @@ const Home = () => {
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentBanner((prev) => (prev + 1) % banners.length);
-    }, 5000); // change every 5s
+    }, 5000);
     return () => clearInterval(interval);
   }, []);
+
+  // Pagination logic
+  const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
+  const startIndex = (currentPage - 1) * productsPerPage;
+  const paginatedProducts = filteredProducts.slice(
+    startIndex,
+    startIndex + productsPerPage
+  );
+
+  const handleNext = () => {
+    if (currentPage < totalPages) setCurrentPage((prev) => prev + 1);
+  };
+
+  const handlePrev = () => {
+    if (currentPage > 1) setCurrentPage((prev) => prev - 1);
+  };
+
+  // Reset to page 1 when category or search changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [selectedCategory, searchQuery]);
 
   // Categories
   const maxVisible = 6;
@@ -100,7 +127,9 @@ const Home = () => {
       <div className="flex flex-wrap items-center gap-2 mb-6">
         <button
           className={`px-3 py-1 rounded ${
-            selectedCategory === "all" ? "bg-pink-600 text-white" : "bg-gray-200"
+            selectedCategory === "all"
+              ? "bg-pink-600 text-white"
+              : "bg-gray-200"
           }`}
           onClick={() => setSelectedCategory("all")}
         >
@@ -111,7 +140,9 @@ const Home = () => {
           <button
             key={index}
             className={`px-3 py-1 rounded ${
-              selectedCategory === cat ? "bg-pink-600 text-white" : "bg-gray-200"
+              selectedCategory === cat
+                ? "bg-pink-600 text-white"
+                : "bg-gray-200"
             }`}
             onClick={() => setSelectedCategory(cat)}
           >
@@ -126,7 +157,9 @@ const Home = () => {
                 <button
                   key={`hidden-${index}`}
                   className={`px-3 py-1 rounded ${
-                    selectedCategory === cat ? "bg-pink-600 text-white" : "bg-gray-200"
+                    selectedCategory === cat
+                      ? "bg-pink-600 text-white"
+                      : "bg-gray-200"
                   }`}
                   onClick={() => setSelectedCategory(cat)}
                 >
@@ -146,20 +179,54 @@ const Home = () => {
       {/* Search result heading */}
       {searchQuery && (
         <h2 className="text-xl font-semibold mb-4">
-          Showing results for: <span className="text-pink-600">{searchQuery}</span>
+          Showing results for:{" "}
+          <span className="text-pink-600">{searchQuery}</span>
         </h2>
       )}
 
       {/* Product Grid */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
-        {filteredProducts.length > 0 ? (
-          filteredProducts.map((product) => (
+        {paginatedProducts.length > 0 ? (
+          paginatedProducts.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))
         ) : (
           <p className="text-gray-600">No products found for your search.</p>
         )}
       </div>
+
+      {/* Pagination Controls */}
+      {totalPages > 1 && (
+        <div className="flex justify-center items-center gap-4 mt-8">
+          <button
+            onClick={handlePrev}
+            disabled={currentPage === 1}
+            className={`px-4 py-2 rounded ${
+              currentPage === 1
+                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                : "bg-pink-600 text-white hover:bg-pink-700"
+            }`}
+          >
+            Prev
+          </button>
+
+          <span className="font-medium">
+            Page {currentPage} of {totalPages}
+          </span>
+
+          <button
+            onClick={handleNext}
+            disabled={currentPage === totalPages}
+            className={`px-4 py-2 rounded ${
+              currentPage === totalPages
+                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                : "bg-pink-600 text-white hover:bg-pink-700"
+            }`}
+          >
+            Next
+          </button>
+        </div>
+      )}
     </div>
   );
 };
