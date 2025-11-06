@@ -58,7 +58,7 @@ const Footer = () => {
 
       {/* Bottom */}
       <div className="border-t border-gray-700 mt-6 py-4 text-center text-sm">
-        &copy; {new Date().getFullYear()} Myntra Clone. All rights reserved.
+        &copy; {new Date().getFullYear()} Dukandar.com All rights reserved.
       </div>
     </footer>
   );
