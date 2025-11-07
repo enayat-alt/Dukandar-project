@@ -7,6 +7,7 @@ import Navbar from "./components/Navbar.jsx";
 import PrivateRoute from "./components/PrivateRoute.jsx";
 import Footer from "./components/Footer.jsx";
 import RightBannerWrapper from "./components/RightBannerWrapper.jsx";
+import ScrollToTop from "./components/ScrollToTop.jsx";
 
 // Lazy load all pages
 const Home = lazy(() => import("./pages/Home.jsx"));
@@ -23,6 +24,7 @@ const App = () => {
       <Navbar />
 
       <Suspense fallback={<div className="text-center mt-20">Loading...</div>}>
+       <ScrollToTop />
         <Routes>
           {/* Public Routes */}
           <Route path="/" element={<Home />} />
