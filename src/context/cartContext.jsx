@@ -40,6 +40,11 @@ const reducer = (state, action) => {
       const updatedOrders = [...state.orders, newOrder];
       localStorage.setItem("orders", JSON.stringify(updatedOrders));
       return { ...state, orders: updatedOrders, cart: [] };
+      
+      case "CANCEL_ORDER":
+      const filtered = state.orders.filter((o) => o.id !== action.payload);
+      localStorage.setItem("orders", JSON.stringify(filtered));
+      return { ...state, orders: filtered };
 
     default:
       return state;

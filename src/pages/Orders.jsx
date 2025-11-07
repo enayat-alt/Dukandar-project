@@ -6,15 +6,14 @@ import { useCart } from "../context/CartContext.jsx";
 
 const Orders = () => {
   const user = useSelector((state) => state.auth.user);
-  const { orders, setOrders } = useCart(); // assuming your context has setOrders
+  const { orders, dispatch } = useCart();
 
+  // Filter orders belonging to the logged-in user
   const userOrders = orders.filter((o) => o.userEmail === user?.email);
 
   const handleCancel = (orderId) => {
     if (window.confirm("Are you sure you want to cancel this order?")) {
-      // Remove the order from the context
-      const updatedOrders = orders.filter((o) => o.id !== orderId);
-      setOrders(updatedOrders);
+      dispatch({ type: "CANCEL_ORDER", payload: orderId });
     }
   };
 
@@ -33,14 +32,14 @@ const Orders = () => {
             >
               <div className="mb-2 md:mb-0">
                 <p><strong>Order ID:</strong> {order.id}</p>
-                <p><strong>Date:</strong> {order.date || "N/A"}</p>
+                <p><strong>Date:</strong> {order.date}</p>
                 <p><strong>Total:</strong> ₹{(order.totalPrice || 0).toFixed(2)}</p>
               </div>
               <div className="flex flex-col md:flex-row items-start md:items-center gap-2">
                 <p>
                   <strong>Items:</strong>{" "}
                   {order.items && order.items.length > 0
-                    ? order.items.map((i) => i.name || i.title).join(", ")
+                    ? order.items.map((i) => i.title).join(", ")
                     : "No items"}
                 </p>
                 <button
@@ -59,4 +58,3 @@ const Orders = () => {
 };
 
 export default Orders;
-
