@@ -1,11 +1,18 @@
-// src/components/ProductCard.jsx
+
 import React from "react";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const ProductCard = ({ product }) => {
+  const navigate = useNavigate();
+
+  const handleBuyNow = () => {
+    // Navigate to Product Details page
+    navigate(`/product/${product.id}`);
+  };
+
   return (
-    <div className="border rounded-md shadow hover:shadow-lg transition p-3">
-      <Link to={`/product/${product.id}`}>
+    <div className="border rounded-md shadow hover:shadow-lg transition p-3 flex flex-col justify-between">
+      <div>
         <img
           src={product.image}
           alt={product.title}
@@ -13,7 +20,15 @@ const ProductCard = ({ product }) => {
         />
         <h3 className="text-sm mt-2 font-medium truncate">{product.title}</h3>
         <p className="text-pink-600 font-semibold">₹{product.price}</p>
-      </Link>
+      </div>
+
+      {/* Buy Now button */}
+      <button
+        onClick={handleBuyNow}
+        className="mt-3 w-full bg-pink-600 text-white py-1 rounded hover:bg-pink-700"
+      >
+        Buy Now
+      </button>
     </div>
   );
 };
