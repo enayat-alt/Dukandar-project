@@ -14,7 +14,19 @@ const Navbar = () => {
   const location = useLocation();
   const [searchTerm, setSearchTerm] = useState("");
 
-  const handleLogout = () => dispatch(logout());
+  //const handleLogout = () => dispatch(logout());
+
+  const handleLogout = () => {
+  // Clear localStorage
+  localStorage.removeItem("token");
+  localStorage.removeItem("user");
+
+  // Clear Redux state
+  dispatch(logout());
+
+  // Redirect to login page
+  navigate("/login");
+};
 
   // Live search on typing
   const handleSearchChange = (e) => {

@@ -1,24 +1,27 @@
 const express = require('express');
 const cors = require('cors');
+const path = require('path'); // <-- add this
 
 const authRoutes = require('./routes/authRoutes');
 const productRoutes = require('./routes/productRoutes');
 const orderRoutes = require('./routes/orderRoutes');
+const adminRoutes = require('./routes/adminRoutes');
 
 const app = express();
 
-// Middlewares
 app.use(cors());
-app.use(express.json()); // use express.json() instead of body-parser (built-in)
+app.use(express.json());
 
-// Test route to check server is alive
+// Serve uploads folder as static
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 app.get('/', (req, res) => {
   res.send('Dukandar backend is running');
 });
 
-// API routes
 app.use('/auth', authRoutes);
 app.use('/products', productRoutes);
 app.use('/orders', orderRoutes);
+app.use('/admin', adminRoutes);
 
 module.exports = app;

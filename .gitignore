@@ -33,3 +33,4 @@ frontend/.env
 
 # Build folders
 build/
+uploads/

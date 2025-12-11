@@ -1,6 +1,4 @@
 
-
-
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useCart } from "../context/CartContext.jsx";
@@ -14,18 +12,18 @@ const ProductDetails = () => {
   const user = useSelector((state) => state.auth.user);
 
   useEffect(() => {
-    fetch(`https://dummyjson.com/products/${id}`)
+    fetch(`http://localhost:5000/products/${id}`) // <- real API endpoint
       .then((res) => res.json())
       .then((data) => {
+        // Map backend fields to frontend structure
         const formattedProduct = {
           id: data.id,
-          title: data.title,
+          title: data.name,            // backend "name"
           price: data.price,
-          image:
-            data.images && data.images.length > 0
-              ? data.images[0]
-              : `https://picsum.photos/200/200?random=${data.id}`,
-          description: data.description,
+          image: data.image,           // backend image URL already full
+          description: data.description || "No description available",
+          category: data.category,
+          stock: data.stock,
         };
         setProduct(formattedProduct);
       })
