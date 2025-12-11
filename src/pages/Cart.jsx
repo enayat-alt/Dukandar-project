@@ -1,6 +1,3 @@
-
-
-
 import React, { useMemo } from "react";
 import { useCart } from "../context/CartContext.jsx";
 import { useSelector } from "react-redux";
@@ -11,15 +8,19 @@ const Cart = () => {
   const user = useSelector((state) => state.auth.user);
   const navigate = useNavigate();
 
+  // Safely calculate total price
   const totalPrice = useMemo(() => {
-    return cart.reduce((total, item) => total + item.price * (item.quantity || 1), 0);
+    return cart.reduce(
+      (total, item) => total + Number(item.price) * (item.quantity || 1),
+      0
+    );
   }, [cart]);
 
   const handleRemove = (id) => {
     dispatch({ type: "REMOVE_FROM_CART", payload: id });
   };
 
-  const handlePlaceOrder = () => {
+  const handlePlaceOrder = async () => {
     if (!user) {
       alert("Please login first!");
       navigate("/login");
@@ -31,17 +32,41 @@ const Cart = () => {
       return;
     }
 
-    dispatch({
-      type: "PLACE_ORDER",
-      payload: {
-        items: cart,
-        totalPrice: totalPrice,
-        userEmail: user.email,
-      },
-    });
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("Authentication token missing. Please login again.");
+      navigate("/login");
+      return;
+    }
 
-    alert("Order placed successfully!");
-    navigate("/orders");
+    try {
+      const response = await fetch("http://localhost:5000/orders", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          items: cart.map((item) => ({
+            productId: item.id,
+            quantity: item.quantity,
+          })),
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to place order");
+      }
+
+      alert("Order placed successfully!");
+      dispatch({ type: "CLEAR_CART" });
+      navigate("/orders");
+    } catch (err) {
+      console.error(err);
+      alert(err.message);
+    }
   };
 
   if (cart.length === 0) {
@@ -56,6 +81,7 @@ const Cart = () => {
   return (
     <div className="max-w-4xl mx-auto mt-8 p-4">
       <h2 className="text-2xl font-bold mb-4">My Cart</h2>
+
       <div className="flex flex-col gap-4">
         {cart.map((item) => (
           <div
@@ -63,13 +89,18 @@ const Cart = () => {
             className="border p-4 rounded shadow flex justify-between items-center"
           >
             <div className="flex items-center gap-4">
-              <img src={item.image} alt={item.name || item.title} className="w-20 h-20 object-cover" />
+              <img
+                src={item.image}
+                alt={item.name || item.title}
+                className="w-20 h-20 object-cover"
+              />
               <div>
                 <p className="font-semibold">{item.name || item.title}</p>
-                <p>₹{item.price.toFixed(2)}</p>
+                <p>₹{Number(item.price).toFixed(2)}</p>
                 <p>Quantity: {item.quantity || 1}</p>
               </div>
             </div>
+
             <button
               onClick={() => handleRemove(item.id)}
               className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700"
@@ -94,3 +125,5 @@ const Cart = () => {
 };
 
 export default Cart;
+
+

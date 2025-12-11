@@ -11,11 +11,9 @@ const Home = () => {
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [showCategories, setShowCategories] = useState(true);
   const [currentBanner, setCurrentBanner] = useState(0);
-
   const [currentPage, setCurrentPage] = useState(1);
   const productsPerPage = 12;
 
-  const navigate = useNavigate();
   const location = useLocation();
 
   const banners = [
@@ -23,40 +21,41 @@ const Home = () => {
     "https://images.unsplash.com/photo-1521334884684-d80222895322?auto=format&fit=crop&w=1200&q=80",
   ];
 
-  // Search query from Navbar
   const queryParams = new URLSearchParams(location.search);
   const searchQuery = queryParams.get("search")?.toLowerCase() || "";
 
-  // Fetch products and categories
+  // ------------------ Fetch products from backend using fetch ------------------
   useEffect(() => {
-    fetch("https://dummyjson.com/products?limit=100")
-      .then((res) => res.json())
-      .then((data) => {
-        const formattedProducts = data.products.map((p) => ({
+    const fetchProducts = async () => {
+      try {
+        const res = await fetch("http://localhost:5000/products");
+        const data = await res.json();
+
+        const formattedProducts = data.map((p) => ({
           id: p.id,
-          title: p.title,
+          title: p.name,
           price: p.price,
-          image:
-            p.images && p.images.length > 0
-              ? p.images[0]
-              : `https://picsum.photos/200/200?random=${p.id}`,
+          image: p.image || `https://picsum.photos/200/200?random=${p.id}`,
           description: p.description,
           category: p.category,
-          rating: p.rating,
         }));
 
         setProducts(formattedProducts);
         setFilteredProducts(formattedProducts);
 
         const uniqueCategories = Array.from(
-          new Set(data.products.map((p) => p.category))
+          new Set(formattedProducts.map((p) => p.category))
         );
         setCategories(uniqueCategories);
-      })
-      .catch((err) => console.error(err));
+      } catch (err) {
+        console.error("Error fetching products:", err);
+      }
+    };
+
+    fetchProducts();
   }, []);
 
-  // Search filter
+  // ------------------ Search & Category Filter ------------------
   useEffect(() => {
     if (!products.length) return;
 
@@ -75,7 +74,7 @@ const Home = () => {
     setFilteredProducts(updated);
   }, [searchQuery, selectedCategory, products]);
 
-  // Banner slider
+  // ------------------ Banner slider ------------------
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentBanner((prev) => (prev + 1) % banners.length);
@@ -83,7 +82,7 @@ const Home = () => {
     return () => clearInterval(interval);
   }, []);
 
-  // Pagination logic
+  // ------------------ Pagination ------------------
   const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
   const startIndex = (currentPage - 1) * productsPerPage;
   const paginatedProducts = filteredProducts.slice(
@@ -91,14 +90,14 @@ const Home = () => {
     startIndex + productsPerPage
   );
 
+  useEffect(() => setCurrentPage(1), [filteredProducts]);
+
   const handleNext = () => {
     if (currentPage < totalPages) setCurrentPage((prev) => prev + 1);
   };
   const handlePrev = () => {
     if (currentPage > 1) setCurrentPage((prev) => prev - 1);
   };
-
-  useEffect(() => setCurrentPage(1), [filteredProducts]);
 
   const handleCategoryClick = (cat) => {
     setSelectedCategory(cat);
@@ -218,3 +217,4 @@ const Home = () => {
 };
 
 export default Home;
+

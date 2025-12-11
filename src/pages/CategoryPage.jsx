@@ -5,34 +5,53 @@ import ProductCard from "../components/ProductCard";
 const CategoryPage = () => {
   const { categoryName } = useParams();
   const [products, setProducts] = useState([]);
-  const [filteredProducts, setFilteredProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    fetch("https://dummyjson.com/products?limit=100")
-      .then((res) => res.json())
-      .then((data) => {
-        const formattedProducts = data.products.map((p) => ({
-          id: p.id,
-          title: p.title,
-          price: p.price,
-          image:
-            p.images && p.images.length > 0
-              ? p.images[0]
-              : `https://picsum.photos/200/200?random=${p.id}`,
-          description: p.description,
-          category: p.category,
-          rating: p.rating,
-        }));
+    const fetchProducts = async () => {
+      setLoading(true);
+      setError("");
 
-        const filtered = formattedProducts.filter(
-          (p) => p.category === categoryName
+      try {
+        // Replace this URL with your backend endpoint
+        const res = await fetch(
+          `http://localhost:5000/products?category=${categoryName}`
         );
 
+        if (!res.ok) {
+          throw new Error("Failed to fetch products");
+        }
+
+        const data = await res.json();
+
+        // Assuming backend returns products array
+        const formattedProducts = data.map((p) => ({
+          id: p.id,
+          title: p.name || p.title, // your backend field
+          price: p.price,
+          image:
+            p.image ||
+            `https://picsum.photos/200/200?random=${p.id}`,
+          description: p.description,
+          category: p.category,
+          rating: p.rating || 0,
+        }));
+
         setProducts(formattedProducts);
-        setFilteredProducts(filtered);
-      })
-      .catch((err) => console.error(err));
+      } catch (err) {
+        console.error(err);
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
   }, [categoryName]);
+
+  if (loading) return <p className="p-6">Loading products...</p>;
+  if (error) return <p className="p-6 text-red-600">{error}</p>;
 
   return (
     <div className="p-6">
@@ -48,8 +67,8 @@ const CategoryPage = () => {
       </Link>
 
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6 mt-4">
-        {filteredProducts.length > 0 ? (
-          filteredProducts.map((product) => (
+        {products.length > 0 ? (
+          products.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))
         ) : (
@@ -61,3 +80,4 @@ const CategoryPage = () => {
 };
 
 export default CategoryPage;
+
