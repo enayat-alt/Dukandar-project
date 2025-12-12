@@ -1,60 +1,48 @@
 
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-
-// Base URL of your backend
-const baseUrl = 'http://localhost:5000';
+import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { BASE_URL, ADMIN_ROUTES } from "./apiRoutes"; // ✅ import base URL & routes
 
 export const adminApi = createApi({
-  reducerPath: 'adminApi',
+  reducerPath: "adminApi",
   baseQuery: fetchBaseQuery({
-    baseUrl,
+    baseUrl: BASE_URL,
     prepareHeaders: (headers, { getState }) => {
       const token = getState().adminAuth?.token;
-      if (token) headers.set('Authorization', `Bearer ${token}`);
+      if (token) headers.set("Authorization", `Bearer ${token}`);
       return headers;
     },
   }),
-  tagTypes: ['Products', 'Orders'],
+  tagTypes: ["Products", "Orders"],
   endpoints: (builder) => ({
-    // Admin login
     loginAdmin: builder.mutation({
       query: (credentials) => ({
-        url: '/admin/login',
-        method: 'POST',
+        url: ADMIN_ROUTES.LOGIN,
+        method: "POST",
         body: credentials,
       }),
     }),
-
-    // Get all products
     getProducts: builder.query({
-      query: () => '/products',
-      providesTags: ['Products'],
+      query: () => ADMIN_ROUTES.PRODUCTS,
+      providesTags: ["Products"],
     }),
-
-    // Add a product with FormData (image upload)
     addProduct: builder.mutation({
       query: (formData) => ({
-        url: '/products',
-        method: 'POST',
-        body: formData, // FormData with image
-        // Important: DO NOT set 'Content-Type'; browser sets it automatically
+        url: ADMIN_ROUTES.PRODUCTS,
+        method: "POST",
+        body: formData,
       }),
-      invalidatesTags: ['Products'],
+      invalidatesTags: ["Products"],
     }),
-
-    // Delete a product
     deleteProduct: builder.mutation({
       query: (id) => ({
-        url: `/products/${id}`,
-        method: 'DELETE',
+        url: `${ADMIN_ROUTES.PRODUCTS}/${id}`,
+        method: "DELETE",
       }),
-      invalidatesTags: ['Products'],
+      invalidatesTags: ["Products"],
     }),
-
-    // Get all orders
     getOrders: builder.query({
-      query: () => '/orders',
-      providesTags: ['Orders'],
+      query: () => ADMIN_ROUTES.ORDERS,
+      providesTags: ["Orders"],
     }),
   }),
 });

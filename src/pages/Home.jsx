@@ -1,11 +1,12 @@
 
 import React, { useEffect, useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import ProductCard from "../components/ProductCard";
 import FilterSort from "../components/FilterShot";
+import { useGetProductsQuery } from "../services/productApi";
+import { paginate } from "../utils/pagination"; // ✅ import paginate
 
 const Home = () => {
-  const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("all");
@@ -15,6 +16,7 @@ const Home = () => {
   const productsPerPage = 12;
 
   const location = useLocation();
+  const { data: products = [], isLoading, isError } = useGetProductsQuery();
 
   const banners = [
     "https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?auto=format&fit=crop&w=1200&q=80",
@@ -24,36 +26,16 @@ const Home = () => {
   const queryParams = new URLSearchParams(location.search);
   const searchQuery = queryParams.get("search")?.toLowerCase() || "";
 
-  // ------------------ Fetch products from backend using fetch ------------------
+  // ------------------ Categories ------------------
   useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const res = await fetch("http://localhost:5000/products");
-        const data = await res.json();
-
-        const formattedProducts = data.map((p) => ({
-          id: p.id,
-          title: p.name,
-          price: p.price,
-          image: p.image || `https://picsum.photos/200/200?random=${p.id}`,
-          description: p.description,
-          category: p.category,
-        }));
-
-        setProducts(formattedProducts);
-        setFilteredProducts(formattedProducts);
-
-        const uniqueCategories = Array.from(
-          new Set(formattedProducts.map((p) => p.category))
-        );
-        setCategories(uniqueCategories);
-      } catch (err) {
-        console.error("Error fetching products:", err);
-      }
-    };
-
-    fetchProducts();
-  }, []);
+    if (products.length) {
+      const uniqueCategories = Array.from(
+        new Set(products.map((p) => p.category))
+      );
+      setCategories(uniqueCategories);
+      setFilteredProducts(products);
+    }
+  }, [products]);
 
   // ------------------ Search & Category Filter ------------------
   useEffect(() => {
@@ -72,6 +54,7 @@ const Home = () => {
     }
 
     setFilteredProducts(updated);
+    setCurrentPage(1); // reset page when filter/search changes
   }, [searchQuery, selectedCategory, products]);
 
   // ------------------ Banner slider ------------------
@@ -82,26 +65,28 @@ const Home = () => {
     return () => clearInterval(interval);
   }, []);
 
-  // ------------------ Pagination ------------------
-  const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
-  const startIndex = (currentPage - 1) * productsPerPage;
-  const paginatedProducts = filteredProducts.slice(
-    startIndex,
-    startIndex + productsPerPage
-  );
-
-  useEffect(() => setCurrentPage(1), [filteredProducts]);
+  const handleCategoryClick = (cat) => setSelectedCategory(cat);
 
   const handleNext = () => {
-    if (currentPage < totalPages) setCurrentPage((prev) => prev + 1);
+    if (currentPage < Math.ceil(filteredProducts.length / productsPerPage))
+      setCurrentPage((prev) => prev + 1);
   };
   const handlePrev = () => {
     if (currentPage > 1) setCurrentPage((prev) => prev - 1);
   };
 
-  const handleCategoryClick = (cat) => {
-    setSelectedCategory(cat);
-  };
+  if (isLoading) return <p className="text-center mt-10">Loading...</p>;
+  if (isError)
+    return (
+      <p className="text-center mt-10 text-red-600">Failed to load products.</p>
+    );
+
+  // ------------------ Paginate products ------------------
+  const { paginatedItems, totalPages } = paginate(
+    filteredProducts,
+    currentPage,
+    productsPerPage
+  );
 
   return (
     <div className="p-6">
@@ -171,8 +156,8 @@ const Home = () => {
 
       {/* Product Grid */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6 mt-4">
-        {paginatedProducts.length > 0 ? (
-          paginatedProducts.map((product) => (
+        {paginatedItems.length > 0 ? (
+          paginatedItems.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))
         ) : (
@@ -217,4 +202,3 @@ const Home = () => {
 };
 
 export default Home;
-
