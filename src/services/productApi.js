@@ -1,8 +1,11 @@
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
-// Get token from localStorage for protected routes
+
+import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { BASE_URL, PRODUCT_ROUTES } from "./apiRoutes"; // ✅ centralized base URL & routes
+
+// Base query with token for protected routes
 const baseQueryWithAuth = fetchBaseQuery({
-  baseUrl: "http://localhost:5000", // your backend
+  baseUrl: BASE_URL,
   prepareHeaders: (headers) => {
     const token = localStorage.getItem("token");
     if (token) headers.set("Authorization", `Bearer ${token}`);
@@ -16,12 +19,12 @@ export const productApi = createApi({
   tagTypes: ["Product"],
   endpoints: (builder) => ({
     getProducts: builder.query({
-      query: () => "/products",
+      query: () => PRODUCT_ROUTES.GET_PRODUCTS,
       providesTags: ["Product"],
     }),
     createProduct: builder.mutation({
       query: (product) => ({
-        url: "/products",
+        url: PRODUCT_ROUTES.CREATE_PRODUCT,
         method: "POST",
         body: product,
       }),
@@ -29,7 +32,7 @@ export const productApi = createApi({
     }),
     updateProduct: builder.mutation({
       query: ({ id, ...data }) => ({
-        url: `/products/${id}`,
+        url: PRODUCT_ROUTES.UPDATE_PRODUCT(id),
         method: "PUT",
         body: data,
       }),
@@ -37,7 +40,7 @@ export const productApi = createApi({
     }),
     deleteProduct: builder.mutation({
       query: (id) => ({
-        url: `/products/${id}`,
+        url: PRODUCT_ROUTES.DELETE_PRODUCT(id),
         method: "DELETE",
       }),
       invalidatesTags: ["Product"],

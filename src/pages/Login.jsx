@@ -18,18 +18,25 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError(""); // reset error on new submit
 
     try {
-      // Backend login
+      // Call backend login API
       const res = await login({ email, password }).unwrap();
 
-      // Save in Redux + localStorage
+      // ✅ Check backend response for success
+      if (!res.user || !res.token) {
+        setError(res.message || "Invalid email or password");
+        return;
+      }
+
+      // Save in Redux + localStorage only if login is successful
       dispatch(setCredentials({ user: res.user, token: res.token }));
 
-      // Redirect
+      // Redirect to home page
       navigate("/");
     } catch (err) {
-      console.error(err);
+      console.error("Login failed:", err);
       setError(err?.data?.message || "Login failed");
     }
   };
