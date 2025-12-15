@@ -29,17 +29,16 @@ const AdminOrders = lazy(() => import("./pages/admin/Orders.jsx"));
 const App = () => {
   const adminToken = useSelector((state) => state.adminAuth.token);
   const location = useLocation();
-
   const isAdminPage = location.pathname.startsWith("/admin");
 
   return (
     <>
+      {/* ScrollToTop placed here for global effect */}
+      <ScrollToTop />
+
       {!isAdminPage && <Navbar />}
 
       <Suspense fallback={<div className="text-center mt-20">Loading...</div>}>
-        <ScrollToTop />
-
-        {/* Wrap Routes with ErrorBoundary */}
         <ErrorBoundary>
           <Routes>
             {/* Public Routes */}
@@ -48,7 +47,7 @@ const App = () => {
             <Route path="/signup" element={<Signup />} />
             <Route path="/category/:categoryName" element={<CategoryPage />} />
 
-            {/* Protected User Routes - single PrivateRoute wrapper */}
+            {/* Protected User Routes */}
             <Route element={<PrivateRoute />}>
               <Route path="/cart" element={<Cart />} />
               <Route path="/orders" element={<Orders />} />
@@ -89,4 +88,3 @@ const App = () => {
 };
 
 export default App;
-

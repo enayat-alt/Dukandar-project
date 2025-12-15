@@ -1,10 +1,10 @@
 
-
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useLoginMutation } from "../services/authApi";
 import { useDispatch } from "react-redux";
 import { setCredentials } from "../store/slices/authSlice";
+import { motion } from "framer-motion";
 
 const Login = () => {
   const dispatch = useDispatch();
@@ -18,68 +18,91 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError(""); // reset error on new submit
+    setError("");
 
     try {
-      // Call backend login API
       const res = await login({ email, password }).unwrap();
 
-      // ✅ Check backend response for success
-      if (!res.user || !res.token) {
-        setError(res.message || "Invalid email or password");
+      if (!res?.user || !res?.token) {
+        setError(res?.message || "Invalid credentials");
         return;
       }
 
-      // Save in Redux + localStorage only if login is successful
       dispatch(setCredentials({ user: res.user, token: res.token }));
-
-      // Redirect to home page
       navigate("/");
     } catch (err) {
-      console.error("Login failed:", err);
       setError(err?.data?.message || "Login failed");
     }
   };
 
   return (
-    <div className="max-w-md mx-auto mt-20 p-6 border rounded shadow">
-      <h2 className="text-2xl font-bold mb-4 text-center">Login</h2>
-      {error && <p className="text-red-600 mb-2">{error}</p>}
+    <div className="min-h-screen bg-[#FDEEF3] flex items-center justify-center px-4">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+        className="w-full max-w-sm bg-white rounded-2xl shadow-xl overflow-hidden"
+      >
+        {/* Top Banner (Myntra Style) */}
+        <div className="bg-gradient-to-r from-pink-500 to-rose-500 h-24"></div>
 
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-        <input
-          type="email"
-          placeholder="Email"
-          className="border p-2 rounded"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
+        <div className="p-6">
+          <h2 className="text-xl font-bold text-slate-900 mb-1">
+            Login <span className="font-normal text-slate-500">or</span> Signup
+          </h2>
 
-        <input
-          type="password"
-          placeholder="Password"
-          className="border p-2 rounded"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
+          <p className="text-sm text-slate-500 mb-6">
+            Use your email & password to continue
+          </p>
 
-        <button
-          type="submit"
-          className="bg-pink-600 text-white py-2 rounded hover:bg-pink-700"
-          disabled={isLoading}
-        >
-          {isLoading ? "Logging in..." : "Login"}
-        </button>
-      </form>
+          {error && (
+            <div className="mb-4 text-sm bg-red-50 text-red-600 p-2 rounded-lg">
+              {error}
+            </div>
+          )}
 
-      <p className="mt-4 text-center">
-        Don't have an account?{" "}
-        <Link to="/signup" className="text-pink-600">
-          Signup
-        </Link>
-      </p>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <input
+              type="email"
+              placeholder="Email address"
+              className="w-full border border-slate-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-pink-500"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+
+            <input
+              type="password"
+              placeholder="Password"
+              className="w-full border border-slate-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-pink-500"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="w-full bg-pink-600 hover:bg-pink-700 text-white py-3 rounded-lg font-semibold transition disabled:opacity-60"
+            >
+              {isLoading ? "Logging in..." : "CONTINUE"}
+            </button>
+          </form>
+
+          <p className="text-xs text-slate-500 mt-4 leading-relaxed">
+            By continuing, you agree to our{' '}
+            <span className="text-pink-600 font-medium">Terms of Use</span> and{' '}
+            <span className="text-pink-600 font-medium">Privacy Policy</span>
+          </p>
+
+          <p className="mt-4 text-sm text-center text-slate-600">
+            New user?{' '}
+            <Link to="/signup" className="text-pink-600 font-semibold">
+              Create account
+            </Link>
+          </p>
+        </div>
+      </motion.div>
     </div>
   );
 };

@@ -11,9 +11,9 @@ const Cart = () => {
   const user = useSelector((state) => state.auth.user);
   const navigate = useNavigate();
 
-  const [placeOrder] = usePlaceOrderMutation(); // RTK Query mutation
+  const [placeOrder] = usePlaceOrderMutation();
 
-  // Safely calculate total price
+  // Total price calculation
   const totalPrice = useMemo(() => {
     return cart.reduce(
       (total, item) => total + Number(item.price) * (item.quantity || 1),
@@ -38,16 +38,15 @@ const Cart = () => {
     }
 
     try {
-      await placeOrder(
-        cart.map((item) => ({
-          productId: item.id,
-          quantity: item.quantity || 1,
-        }))
-      ).unwrap(); // ✅ unwrap ensures error handling
+      const formattedCart = cart.map(item => ({
+        productId: item.productId || item.id,
+        quantity: item.quantity || 1,
+      }));
 
+      await placeOrder(formattedCart).unwrap();
       alert("Order placed successfully!");
       dispatch({ type: "CLEAR_CART" });
-      navigate("/orders"); // Orders page will auto-refresh thanks to RTK Query
+      navigate("/orders");
     } catch (err) {
       console.error(err);
       alert(err?.data?.message || "Failed to place order");
@@ -64,43 +63,64 @@ const Cart = () => {
   }
 
   return (
-    <div className="max-w-4xl mx-auto mt-8 p-4">
-      <h2 className="text-2xl font-bold mb-4">My Cart</h2>
+    <div className="max-w-6xl mx-auto mt-8 p-4">
+      <h2 className="text-2xl font-bold mb-6">My Cart</h2>
 
       <div className="flex flex-col gap-4">
         {cart.map((item) => (
           <div
-            key={item.id}
-            className="border p-4 rounded shadow flex justify-between items-center"
+            key={item.productId || item.id}
+            className="bg-white border border-gray-200 rounded-lg shadow-sm flex flex-col md:flex-row justify-between p-4 hover:shadow-md transition"
           >
-            <div className="flex items-center gap-4">
+            {/* Product Info */}
+            <div className="flex items-center gap-4 flex-1">
               <img
                 src={item.image}
                 alt={item.name || item.title}
-                className="w-20 h-20 object-cover"
+                className="w-24 h-24 object-cover rounded"
               />
-              <div>
-                <p className="font-semibold">{item.name || item.title}</p>
-                <p>₹{Number(item.price).toFixed(2)}</p>
-                <p>Quantity: {item.quantity || 1}</p>
+              <div className="flex flex-col gap-1">
+                <p className="font-semibold text-gray-900">{item.name || item.title}</p>
+                <p className="text-gray-700">₹{Number(item.price).toFixed(2)}</p>
+
+                {/* Quantity Selector */}
+                <div className="flex items-center gap-2 mt-1">
+                  <button
+                    onClick={() => dispatch({ type: "DECREMENT_QUANTITY", payload: item.productId || item.id })}
+                    className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300"
+                  >
+                    -
+                  </button>
+                  <span className="px-3 py-1 border rounded">{item.quantity || 1}</span>
+                  <button
+                    onClick={() => dispatch({ type: "INCREMENT_QUANTITY", payload: item.productId || item.id })}
+                    className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300"
+                  >
+                    +
+                  </button>
+                </div>
               </div>
             </div>
 
-            <button
-              onClick={() => handleRemove(item.id)}
-              className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700"
-            >
-              Remove
-            </button>
+            {/* Remove Button */}
+            <div className="mt-4 md:mt-0 md:ml-4 flex flex-col items-end">
+              <button
+                onClick={() => handleRemove(item.productId || item.id)}
+                className="bg-gray-200 text-red-400 px-4 py-1 rounded hover:bg-gray-300 transition"
+              >
+                Remove
+              </button>
+            </div>
           </div>
         ))}
       </div>
 
-      <div className="mt-6 flex justify-between items-center">
-        <p className="text-xl font-bold">Total: ₹{totalPrice.toFixed(2)}</p>
+      {/* Total and Place Order */}
+      <div className="mt-6 flex flex-col md:flex-row justify-between items-center bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+        <p className="text-xl font-bold text-gray-900">Total: ₹{totalPrice.toFixed(2)}</p>
         <button
           onClick={handlePlaceOrder}
-          className="bg-pink-600 text-white px-4 py-2 rounded hover:bg-pink-700"
+          className="mt-3 md:mt-0 bg-white text-gray-800 border border-gray-300 px-6 py-2 rounded font-semibold hover:bg-gray-100 transition"
         >
           Place Order
         </button>
