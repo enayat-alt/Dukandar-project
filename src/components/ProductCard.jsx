@@ -1,5 +1,4 @@
 
-
 import React from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -10,7 +9,7 @@ const ProductCard = ({ product }) => {
     navigate(`/product/${product.id}`);
   };
 
-  const inStock = product.stock && product.stock > 0; // adjust field if different
+  const inStock = product.stock && product.stock > 0;
 
   return (
     <div className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-lg transition cursor-pointer flex flex-col">
@@ -26,13 +25,23 @@ const ProductCard = ({ product }) => {
       <div className="px-3 pb-3 flex flex-col flex-grow">
         {/* Brand Name */}
         {product.brand && (
-          <p className="text-xs text-gray-500 font-semibold">{product.brand}</p>
+          <p className="text-xs text-gray-900 font-semibold">{product.brand}</p>
         )}
 
-        {/* Product Title */}
-        <h3 className="text-sm text-gray-900 font-medium line-clamp-2 mt-1">
+        {/* Product Title - bigger and black */}
+        <h3 className="text-base text-black font-semibold mt-1 line-clamp-2">
           {product.title}
         </h3>
+
+        {/* Category */}
+        {product.category && (
+          <p className="text-xs text-gray-900 mt-2 capitalize">{product.category}</p>
+        )}
+
+        {/* Short Description */}
+        {product.description && (
+          <p className="text-xs text-gray-600 mt-1 line-clamp-3">{product.description}</p>
+        )}
 
         {/* Stock Status */}
         <p
@@ -68,6 +77,15 @@ const ProductCard = ({ product }) => {
             </span>
             <span className="text-gray-400 text-xs">({product.rating})</span>
           </div>
+        )}
+
+        {/* Additional Details */}
+        {product.details && (
+          <ul className="text-xs text-gray-600 mt-1 list-disc list-inside line-clamp-3">
+            {product.details.map((detail, idx) => (
+              <li key={idx}>{detail}</li>
+            ))}
+          </ul>
         )}
 
         {/* Buy Now Button */}

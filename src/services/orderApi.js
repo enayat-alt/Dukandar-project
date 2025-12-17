@@ -1,46 +1,7 @@
-// import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-// import { BASE_URL } from "./apiRoutes"; // your centralized backend URL
 
-// export const orderApi = createApi({
-//   reducerPath: "orderApi",
-//   baseQuery: fetchBaseQuery({
-//     baseUrl: BASE_URL,
-//     prepareHeaders: (headers, { getState }) => {
-//       // ✅ Get user token from Redux
-//       const token = getState().auth.token;
-//       if (token) {
-//         headers.set("Authorization", `Bearer ${token}`);
-//       }
-//       return headers;
-//     },
-//   }),
-//   tagTypes: ["Orders"], // used for auto-refetch after cancel
-//   endpoints: (builder) => ({
-//     // 🔹 Get all orders for logged-in user
-//     getUserOrders: builder.query({
-//       query: () => "/orders", // ✅ match backend route
-//       providesTags: ["Orders"], // auto refetch if Orders tag invalidates
-//     }),
-
-//     // 🔹 Cancel (delete) an order
-//     cancelOrder: builder.mutation({
-//       query: (orderId) => ({
-//         url: `/orders/${orderId}`,
-//         method: "DELETE",
-//       }),
-//       invalidatesTags: ["Orders"], // auto refresh orders after cancellation
-//     }),
-//   }),
-// });
-
-// // ✅ Export hooks for components
-// export const {
-//   useGetUserOrdersQuery,
-//   useCancelOrderMutation,
-// } = orderApi;
 
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { BASE_URL } from "./apiRoutes"; // centralized backend URL
+import { BASE_URL } from "./apiRoutes";
 
 export const orderApi = createApi({
   reducerPath: "orderApi",
@@ -52,39 +13,57 @@ export const orderApi = createApi({
       return headers;
     },
   }),
-  tagTypes: ["Orders"], // used to auto-refresh
+  tagTypes: ["Orders"],
   endpoints: (builder) => ({
-    // ✅ Get orders for logged-in user
     getUserOrders: builder.query({
       query: () => "/orders",
       providesTags: ["Orders"],
     }),
 
-    // ✅ Place a new order
     placeOrder: builder.mutation({
-      query: (cartItems) => ({
-        url: "/orders",
-        method: "POST",
-        body: { items: cartItems },
-      }),
-      invalidatesTags: ["Orders"], // auto-refresh getUserOrders
+      query: ({ items = [], paymentIntent }) => {
+        if (!Array.isArray(items) || items.length === 0) {
+          throw new Error("Cart is empty or invalid");
+        }
+
+        // Only send productId and quantity — backend does not need price
+        const formattedItems = items.map((item) => ({
+          productId: item.productId || item.id,
+          quantity: item.quantity || 1,
+        }));
+
+        // Total price is optional, backend calculates anyway, but can send
+        const totalPrice = formattedItems.reduce(
+          (total, item) => total + Number(item.price || 0) * (item.quantity || 1),
+          0
+        );
+
+        return {
+          url: "/orders",
+          method: "POST",
+          body: {
+            items: formattedItems,
+            totalPrice,
+            paymentId: paymentIntent?.id || null,
+            paymentStatus: paymentIntent?.status || "pending",
+          },
+        };
+      },
+      invalidatesTags: ["Orders"],
     }),
 
-    // ✅ Cancel (delete) an order
     cancelOrder: builder.mutation({
       query: (orderId) => ({
         url: `/orders/${orderId}`,
         method: "DELETE",
       }),
-      invalidatesTags: ["Orders"], // auto-refresh getUserOrders
+      invalidatesTags: ["Orders"],
     }),
   }),
 });
 
-// Export hooks for components
 export const {
   useGetUserOrdersQuery,
   usePlaceOrderMutation,
   useCancelOrderMutation,
 } = orderApi;
-
