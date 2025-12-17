@@ -5,7 +5,7 @@ const RightBanner = () => {
 
   return (
     <div
-      className={`fixed top-1/3 right-0 bg-pink-600 text-white rounded-l-lg shadow-lg transition-all duration-300 z-50 cursor-pointer
+      className={`fixed top-1/3 right-0 bg-orange-300 text-white rounded-l-lg shadow-lg transition-all duration-300 z-50 cursor-pointer
         ${isOpen ? "w-64 p-4" : "w-12 p-2"}`}
       onClick={() => setIsOpen(!isOpen)}
     >
@@ -20,7 +20,7 @@ const RightBanner = () => {
           </p>
 
           {/* Action Button */}
-          <button className="bg-white text-pink-600 px-3 py-1 rounded hover:bg-gray-100">
+          <button className="bg-white text-orange-600 px-3 py-1 rounded hover:bg-gray-100">
             Claim Now
           </button>
 

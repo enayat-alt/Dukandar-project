@@ -1,7 +1,6 @@
 import React from "react";
 import { ErrorBoundary as ReactErrorBoundary } from "react-error-boundary";
 
-// Fallback UI to show when an error occurs
 const Fallback = ({ error, resetErrorBoundary }) => {
   return (
     <div style={{ padding: "30px", textAlign: "center" }}>
@@ -25,18 +24,14 @@ const Fallback = ({ error, resetErrorBoundary }) => {
   );
 };
 
-// Functional Error Boundary wrapper
 const ErrorBoundary = ({ children }) => {
   return (
     <ReactErrorBoundary
       FallbackComponent={Fallback}
       onError={(error, info) => {
         console.error("ErrorBoundary caught an error:", error, info);
-        // You can send error to a logging service here (Sentry, LogRocket)
       }}
-      onReset={() => {
-        // Reset any app state if needed
-      }}
+      onReset={() => {}}
     >
       {children}
     </ReactErrorBoundary>

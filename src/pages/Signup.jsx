@@ -1,9 +1,9 @@
 
 
-
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useRegisterMutation } from "../services/authApi";
+import { motion } from "framer-motion";
 
 const Signup = () => {
   const [name, setName] = useState("");
@@ -21,10 +21,7 @@ const Signup = () => {
     setSuccess("");
 
     try {
-      // Call backend signup API
       const res = await register({ name, email, password }).unwrap();
-
-      // ✅ Instead of auto-login, show success and redirect to login page
       setSuccess("Signup successful! Please login.");
       setTimeout(() => navigate("/login"), 1500);
     } catch (err) {
@@ -34,51 +31,87 @@ const Signup = () => {
   };
 
   return (
-    <div className="max-w-md mx-auto mt-20 p-6 border rounded shadow">
-      <h2 className="text-2xl font-bold mb-4 text-center">Signup</h2>
-      {error && <p className="text-red-600 mb-2">{error}</p>}
-      {success && <p className="text-green-600 mb-2">{success}</p>}
+    <div className="min-h-screen bg-[#FDEEF3] flex items-center justify-center px-4">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+        className="w-full max-w-sm bg-white rounded-2xl shadow-xl overflow-hidden"
+      >
+        {/* Top Banner */}
+        <div className="bg-gradient-to-r from-pink-500 to-rose-500 h-24"></div>
 
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-        <input
-          type="text"
-          placeholder="Full Name"
-          className="border p-2 rounded"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          required
-        />
-        <input
-          type="email"
-          placeholder="Email"
-          className="border p-2 rounded"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          className="border p-2 rounded"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
-        <button
-          type="submit"
-          className="bg-pink-600 text-white py-2 rounded hover:bg-pink-700"
-          disabled={isLoading}
-        >
-          {isLoading ? "Signing up..." : "Signup"}
-        </button>
-      </form>
+        <div className="p-6">
+          <h2 className="text-xl font-bold text-slate-900 mb-1">
+            Signup <span className="font-normal text-slate-500">or</span> Login
+          </h2>
+          <p className="text-sm text-slate-500 mb-6">
+            Create an account to start shopping
+          </p>
 
-      <p className="mt-4 text-center">
-        Already have an account?{" "}
-        <Link to="/login" className="text-pink-600">
-          Login
-        </Link>
-      </p>
+          {error && (
+            <div className="mb-3 text-sm bg-red-50 text-red-600 p-2 rounded-lg">
+              {error}
+            </div>
+          )}
+
+          {success && (
+            <div className="mb-3 text-sm bg-green-50 text-green-600 p-2 rounded-lg">
+              {success}
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <input
+              type="text"
+              placeholder="Full name"
+              className="w-full border border-slate-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-pink-500"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+            />
+
+            <input
+              type="email"
+              placeholder="Email address"
+              className="w-full border border-slate-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-pink-500"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+
+            <input
+              type="password"
+              placeholder="Password"
+              className="w-full border border-slate-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-pink-500"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="w-full bg-pink-600 hover:bg-pink-700 text-white py-3 rounded-lg font-semibold transition disabled:opacity-60"
+            >
+              {isLoading ? "Signing up..." : "CONTINUE"}
+            </button>
+          </form>
+
+          <p className="text-xs text-slate-500 mt-4 leading-relaxed">
+            By continuing, you agree to our{' '}
+            <span className="text-pink-600 font-medium">Terms of Use</span> and{' '}
+            <span className="text-pink-600 font-medium">Privacy Policy</span>
+          </p>
+
+          <p className="mt-4 text-sm text-center text-slate-600">
+            Already have an account?{' '}
+            <Link to="/login" className="text-pink-600 font-semibold">
+              Login
+            </Link>
+          </p>
+        </div>
+      </motion.div>
     </div>
   );
 };

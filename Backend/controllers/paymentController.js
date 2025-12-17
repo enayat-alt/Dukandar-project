@@ -1,0 +1,78 @@
+// const Stripe = require("stripe");
+// const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
+
+// // Controller to create PaymentIntent
+// exports.createPaymentIntent = async (req, res) => {
+//   try {
+//     const { amount } = req.body; // amount in rupees
+
+//     const paymentIntent = await stripe.paymentIntents.create({
+//       amount: amount * 100, // convert ₹ → paise
+//       currency: "inr",
+//       payment_method_types: ["card"],
+//     });
+
+//     res.json({ clientSecret: paymentIntent.client_secret });
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).json({ error: err.message });
+//   }
+// };
+
+
+// const Stripe = require("stripe");
+// const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
+
+// // Controller to create PaymentIntent
+// exports.createPaymentIntent = async (req, res) => {
+//   try {
+//     const { amount } = req.body; // amount in rupees
+
+//     if (!amount || isNaN(amount)) {
+//       return res.status(400).json({ error: "Invalid amount" });
+//     }
+
+//     const paymentIntent = await stripe.paymentIntents.create({
+//       amount: Math.round(amount * 100), // convert ₹ → paise
+//       currency: "inr",
+//       payment_method_types: ["card"],
+//     });
+
+//     res.json({ clientSecret: paymentIntent.client_secret });
+//   } catch (err) {
+//     console.error("Stripe Error:", err);
+//     res.status(500).json({ error: err.message });
+//   }
+// };
+
+
+const Stripe = require("stripe");
+const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
+
+// Controller to create PaymentIntent
+exports.createPaymentIntent = async (req, res) => {
+  try {
+    const { amount } = req.body; // amount in rupees
+
+    if (!amount || isNaN(amount)) {
+      console.log("Invalid amount received:", amount);
+      return res.status(400).json({ error: "Invalid amount" });
+    }
+
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount: Math.round(amount * 100), // convert ₹ → paise
+      currency: "inr",
+      payment_method_types: ["card"],
+    });
+
+    console.log("=== PaymentIntent Created ===");
+    console.log("PaymentIntent ID:", paymentIntent.id);
+    console.log("ClientSecret:", paymentIntent.client_secret);
+    console.log("=============================");
+
+    res.json({ clientSecret: paymentIntent.client_secret });
+  } catch (err) {
+    console.error("Stripe Error:", err);
+    res.status(500).json({ error: err.message });
+  }
+};

@@ -1,4 +1,6 @@
 
+
+
 import React from "react";
 
 const Footer = () => {
@@ -18,11 +20,11 @@ const Footer = () => {
         <div>
           <h3 className="font-bold mb-4 text-lg">Customer Care</h3>
           <ul className="space-y-2 text-sm">
-            <li className="hover:text-pink-600 cursor-pointer">Contact Us</li>
-            <li className="hover:text-pink-600 cursor-pointer">FAQ</li>
-            <li className="hover:text-pink-600 cursor-pointer">Shipping</li>
-            <li className="hover:text-pink-600 cursor-pointer">Returns</li>
-            <li className="hover:text-pink-600 cursor-pointer">Order Status</li>
+            <li className="hover:text-gray-800 cursor-pointer">Contact Us</li>
+            <li className="hover:text-gray-800 cursor-pointer">FAQ</li>
+            <li className="hover:text-gray-800 cursor-pointer">Shipping</li>
+            <li className="hover:text-gray-800 cursor-pointer">Returns</li>
+            <li className="hover:text-gray-800 cursor-pointer">Order Status</li>
           </ul>
         </div>
 
@@ -30,11 +32,11 @@ const Footer = () => {
         <div>
           <h3 className="font-bold mb-4 text-lg">About</h3>
           <ul className="space-y-2 text-sm">
-            <li className="hover:text-pink-600 cursor-pointer">About Us</li>
-            <li className="hover:text-pink-600 cursor-pointer">Careers</li>
-            <li className="hover:text-pink-600 cursor-pointer">Press</li>
-            <li className="hover:text-pink-600 cursor-pointer">Blog</li>
-            <li className="hover:text-pink-600 cursor-pointer">Affiliate</li>
+            <li className="hover:text-gray-800 cursor-pointer">About Us</li>
+            <li className="hover:text-gray-800 cursor-pointer">Careers</li>
+            <li className="hover:text-gray-800 cursor-pointer">Press</li>
+            <li className="hover:text-gray-800 cursor-pointer">Blog</li>
+            <li className="hover:text-gray-800 cursor-pointer">Affiliate</li>
           </ul>
         </div>
 
@@ -42,10 +44,10 @@ const Footer = () => {
         <div>
           <h3 className="font-bold mb-4 text-lg">Follow Us</h3>
           <ul className="space-y-2 text-sm">
-            <li className="hover:text-pink-600 cursor-pointer">Facebook</li>
-            <li className="hover:text-pink-600 cursor-pointer">Instagram</li>
-            <li className="hover:text-pink-600 cursor-pointer">Twitter</li>
-            <li className="hover:text-pink-600 cursor-pointer">LinkedIn</li>
+            <li className="hover:text-gray-800 cursor-pointer">Facebook</li>
+            <li className="hover:text-gray-800 cursor-pointer">Instagram</li>
+            <li className="hover:text-gray-800 cursor-pointer">Twitter</li>
+            <li className="hover:text-gray-800 cursor-pointer">LinkedIn</li>
           </ul>
         </div>
 
@@ -59,7 +61,7 @@ const Footer = () => {
               placeholder="Enter your email"
               className="p-2 rounded-l border border-gray-300 flex-1 focus:outline-none"
             />
-            <button className="bg-pink-600 px-4 rounded-r hover:bg-pink-700 text-white">
+            <button className="bg-blue-400 px-4 rounded-r hover:bg-gray-700 text-white">
               Subscribe
             </button>
           </div>
@@ -67,7 +69,7 @@ const Footer = () => {
       </div>
 
       {/* Bottom */}
-      <div className="border-t border-gray-300 mt-6 py-4 text-center text-sm">
+      <div className="border-t border-gray-300 mt-6 py-4 text-center text-sm text-gray-600">
         &copy; {new Date().getFullYear()} Dukandar.com. All rights reserved.
       </div>
     </footer>

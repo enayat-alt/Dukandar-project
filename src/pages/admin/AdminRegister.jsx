@@ -1,55 +1,57 @@
+
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { setCredentials } from "../../store/slices/adminAuthSlice";
+import {
+  useRegisterAdminMutation,
+  useLoginAdminMutation,
+} from "../../services/adminApi";
 
 const AdminRegister = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
+  // ✅ RTK Query mutations
+  const [registerAdmin, { isLoading: registering }] =
+    useRegisterAdminMutation();
+  const [loginAdmin, { isLoading: loggingIn }] =
+    useLoginAdminMutation();
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-    setLoading(true);
 
     try {
-      // Call your backend admin register API
-      const res = await fetch("http://localhost:5000/admin/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, password }),
-      });
+      // ✅ 1. Register Admin
+      await registerAdmin({ name, email, password }).unwrap();
 
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || "Registration failed");
+      // ✅ 2. Auto Login
+      const loginData = await loginAdmin({ email, password }).unwrap();
 
-      // OPTIONAL: Auto-login after registration
-      const loginRes = await fetch("http://localhost:5000/admin/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
+      // ✅ 3. Save auth data
+      dispatch(
+        setCredentials({
+          admin: loginData.admin,
+          token: loginData.token,
+        })
+      );
 
-      const loginData = await loginRes.json();
-      if (!loginRes.ok) throw new Error(loginData.message || "Login failed");
-
-      // Save token in redux and localStorage
-      dispatch(setCredentials({ admin: loginData.admin, token: loginData.token }));
       localStorage.setItem("adminToken", loginData.token);
 
-      navigate("/admin/dashboard"); // Navigate to dashboard after login
+      // ✅ 4. Redirect
+      navigate("/admin/dashboard");
     } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
+      setError(err?.data?.message || "Something went wrong");
     }
   };
+
+  const loading = registering || loggingIn;
 
   return (
     <div
@@ -84,23 +86,37 @@ const AdminRegister = () => {
             value={name}
             onChange={(e) => setName(e.target.value)}
             required
-            style={{ padding: "10px", borderRadius: "6px", border: "1px solid #ccc" }}
+            style={{
+              padding: "10px",
+              borderRadius: "6px",
+              border: "1px solid #ccc",
+            }}
           />
+
           <input
             type="email"
             placeholder="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            style={{ padding: "10px", borderRadius: "6px", border: "1px solid #ccc" }}
+            style={{
+              padding: "10px",
+              borderRadius: "6px",
+              border: "1px solid #ccc",
+            }}
           />
+
           <input
             type="password"
             placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
-            style={{ padding: "10px", borderRadius: "6px", border: "1px solid #ccc" }}
+            style={{
+              padding: "10px",
+              borderRadius: "6px",
+              border: "1px solid #ccc",
+            }}
           />
 
           <button
@@ -119,7 +135,9 @@ const AdminRegister = () => {
             {loading ? "Registering..." : "Register"}
           </button>
 
-          {error && <p style={{ color: "red", textAlign: "center" }}>{error}</p>}
+          {error && (
+            <p style={{ color: "red", textAlign: "center" }}>{error}</p>
+          )}
         </form>
       </div>
     </div>

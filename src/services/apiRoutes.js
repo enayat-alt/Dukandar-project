@@ -13,6 +13,7 @@ export const AUTH_ROUTES = {
 export const ADMIN_ROUTES = {
   LOGIN: "/admin/login",
   PRODUCTS: "/products",
+   REGISTER: "/admin/register",
   ORDERS: "/orders",
 };
 
