@@ -1,7 +1,5 @@
-
-
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { BASE_URL, AUTH_ROUTES } from "./apiRoutes"; // ✅ import centralized base URL & routes
+import { BASE_URL, AUTH_ROUTES } from "./apiRoutes"; 
 
 export const authApi = createApi({
   reducerPath: "authApi",

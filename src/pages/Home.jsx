@@ -17,10 +17,11 @@ const Home = () => {
 
   const location = useLocation();
   const { data: products = [], isLoading, isError } = useGetProductsQuery();
+ 
 
   const banners = [
-    "https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?auto=format&fit=crop&w=1200&q=80",
-    "https://images.unsplash.com/photo-1521334884684-d80222895322?auto=format&fit=crop&w=1200&q=80",
+    "https://image-tc.galaxy.tf/wijpeg-5hwpt4qbfrteko9t5pkqcyqn3/shopping-resize_standard.jpg?crop=69%2C0%2C1783%2C1337",
+   "https://cdn.searchenginejournal.com/wp-content/uploads/2022/08/google-shopping-ads-6304dccb7a49e-sej.png",
   ];
 
   const queryParams = new URLSearchParams(location.search);
@@ -34,22 +35,28 @@ const Home = () => {
     }
   }, [products]);
 
+
   useEffect(() => {
-    if (!products.length) return;
+  if (!products.length) return;
 
-    let updated = [...products];
+  let updated = [...products];
 
-    if (searchQuery) {
-      updated = updated.filter((p) => p.title && p.title.toLowerCase().includes(searchQuery));
-    }
+  if (searchQuery) {
+    const query = searchQuery.trim().toLowerCase();
+    updated = updated.filter(
+      (p) =>
+        p.name?.toLowerCase().includes(query) || // search by name
+        p.description?.toLowerCase().includes(query) // optional: search by description
+    );
+  }
 
-    if (selectedCategory !== "all") {
-      updated = updated.filter((p) => p.category === selectedCategory);
-    }
+  if (selectedCategory !== "all") {
+    updated = updated.filter((p) => p.category === selectedCategory);
+  }
 
-    setFilteredProducts(updated);
-    setCurrentPage(1);
-  }, [searchQuery, selectedCategory, products]);
+  setFilteredProducts(updated);
+  setCurrentPage(1);
+}, [searchQuery, selectedCategory, products]);
 
   useEffect(() => {
     const interval = setInterval(() => {

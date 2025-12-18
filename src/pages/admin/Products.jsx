@@ -1,3 +1,5 @@
+
+
 import React, { useState } from "react";
 import {
   useGetProductsQuery,
@@ -14,8 +16,10 @@ const Products = () => {
     name: "",
     price: "",
     category: "",
+    description: "",
     image: null,
   });
+
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
@@ -25,7 +29,13 @@ const Products = () => {
     setError("");
     setSuccess("");
 
-    if (!newProduct.name || !newProduct.price || !newProduct.category || !newProduct.image) {
+    if (
+      !newProduct.name ||
+      !newProduct.price ||
+      !newProduct.category ||
+      !newProduct.description ||
+      !newProduct.image
+    ) {
       setError("Please fill all fields and select an image");
       return;
     }
@@ -34,12 +44,19 @@ const Products = () => {
     formData.append("name", newProduct.name);
     formData.append("price", newProduct.price);
     formData.append("category", newProduct.category);
+    formData.append("description", newProduct.description);
     formData.append("image", newProduct.image);
 
     try {
       await addProduct(formData).unwrap();
       setSuccess("Product added successfully!");
-      setNewProduct({ name: "", price: "", category: "", image: null });
+      setNewProduct({
+        name: "",
+        price: "",
+        category: "",
+        description: "",
+        image: null,
+      });
     } catch (err) {
       setError(err?.data?.message || "Failed to add product");
     }
@@ -60,48 +77,67 @@ const Products = () => {
   if (isError) return <p className="text-center mt-4 text-red-500">Error loading products</p>;
 
   return (
-    <div className="max-w-5xl mx-auto mt-10">
+    <div className="max-w-6xl mx-auto mt-10">
       <h2 className="text-2xl font-bold mb-6">Admin Products</h2>
 
       {/* Add Product Form */}
       <form
         onSubmit={handleAddProduct}
-        className="flex flex-col md:flex-row gap-4 items-center mb-6 p-4 bg-white shadow rounded"
+        className="grid grid-cols-1 md:grid-cols-6 gap-4 mb-6 p-4 bg-white shadow rounded"
       >
         <input
           type="text"
           placeholder="Name"
           value={newProduct.name}
           onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
-          className="border p-2 rounded flex-1"
+          className="border p-2 rounded"
           required
         />
+
         <input
           type="number"
           placeholder="Price"
           value={newProduct.price}
           onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })}
-          className="border p-2 rounded w-32"
+          className="border p-2 rounded"
           required
         />
+
         <input
           type="text"
           placeholder="Category"
           value={newProduct.category}
-          onChange={(e) => setNewProduct({ ...newProduct, category: e.target.value })}
-          className="border p-2 rounded flex-1"
-          required
-        />
-        <input
-          type="file"
-          accept="image/*"
-          onChange={(e) => setNewProduct({ ...newProduct, image: e.target.files[0] })}
+          onChange={(e) =>
+            setNewProduct({ ...newProduct, category: e.target.value })
+          }
           className="border p-2 rounded"
           required
         />
+
+        <textarea
+          placeholder="Description"
+          value={newProduct.description}
+          onChange={(e) =>
+            setNewProduct({ ...newProduct, description: e.target.value })
+          }
+          className="border p-2 rounded col-span-1 md:col-span-2"
+          rows={2}
+          required
+        />
+
+        <input
+          type="file"
+          accept="image/*"
+          onChange={(e) =>
+            setNewProduct({ ...newProduct, image: e.target.files[0] })
+          }
+          className="border p-2 rounded"
+          required
+        />
+
         <button
           type="submit"
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 md:col-span-6"
         >
           Add Product
         </button>
@@ -119,6 +155,7 @@ const Products = () => {
               <th className="py-2 px-4 border">Name</th>
               <th className="py-2 px-4 border">Category</th>
               <th className="py-2 px-4 border">Price</th>
+              <th className="py-2 px-4 border">Description</th>
               <th className="py-2 px-4 border">Image</th>
               <th className="py-2 px-4 border">Actions</th>
             </tr>
@@ -129,7 +166,10 @@ const Products = () => {
                 <td className="py-2 px-4 border">{p.id}</td>
                 <td className="py-2 px-4 border">{p.name}</td>
                 <td className="py-2 px-4 border">{p.category}</td>
-                <td className="py-2 px-4 border">{p.price}</td>
+                <td className="py-2 px-4 border">₹{p.price}</td>
+                <td className="py-2 px-4 border max-w-xs text-sm text-gray-700">
+                  {p.description}
+                </td>
                 <td className="py-2 px-4 border">
                   {p.image && (
                     <img

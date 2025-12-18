@@ -1,4 +1,4 @@
-// src/utils/stripe.js
+
 import { loadStripe } from "@stripe/stripe-js";
 
 // Initialize Stripe with your publishable test key

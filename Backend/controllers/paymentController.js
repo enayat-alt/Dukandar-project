@@ -44,8 +44,6 @@
 //     res.status(500).json({ error: err.message });
 //   }
 // };
-
-
 const Stripe = require("stripe");
 const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
 
@@ -55,7 +53,6 @@ exports.createPaymentIntent = async (req, res) => {
     const { amount } = req.body; // amount in rupees
 
     if (!amount || isNaN(amount)) {
-      console.log("Invalid amount received:", amount);
       return res.status(400).json({ error: "Invalid amount" });
     }
 
@@ -65,14 +62,8 @@ exports.createPaymentIntent = async (req, res) => {
       payment_method_types: ["card"],
     });
 
-    console.log("=== PaymentIntent Created ===");
-    console.log("PaymentIntent ID:", paymentIntent.id);
-    console.log("ClientSecret:", paymentIntent.client_secret);
-    console.log("=============================");
-
     res.json({ clientSecret: paymentIntent.client_secret });
   } catch (err) {
-    console.error("Stripe Error:", err);
     res.status(500).json({ error: err.message });
   }
 };
