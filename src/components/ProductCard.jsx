@@ -1,6 +1,16 @@
 
+
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import {
+  Card,
+  CardContent,
+  CardMedia,
+  Typography,
+  Button,
+  Box,
+  Chip,
+} from "@mui/material";
 
 const ProductCard = ({ product }) => {
   const navigate = useNavigate();
@@ -10,98 +20,165 @@ const ProductCard = ({ product }) => {
   };
 
   const inStock = product.stock && product.stock > 0;
+  const discount =
+    product.mrp && product.mrp > product.price
+      ? Math.round(((product.mrp - product.price) / product.mrp) * 100)
+      : null;
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-lg transition cursor-pointer flex flex-col">
+    <Card
+      sx={{
+        height: "100%",
+        display: "flex",
+        flexDirection: "column",
+        borderRadius: 3,
+        boxShadow: 2,
+        transition: "0.3s",
+        cursor: "pointer",
+        "&:hover": { boxShadow: 6 },
+      }}
+    >
       {/* Product Image */}
-      <div className="relative">
-        <img
-          src={product.image}
-          alt={product.title}
-          className="w-full h-48 object-contain p-4"
-        />
-      </div>
+      <CardMedia
+        component="img"
+        image={product.image}
+        alt={product.title}
+        sx={{
+          height: 200,
+          objectFit: "contain",
+          p: 2,
+        }}
+        onClick={handleCardClick}
+      />
 
-      <div className="px-3 pb-3 flex flex-col flex-grow">
-        {/* Brand Name */}
+      <CardContent sx={{ flexGrow: 1 }}>
+        {/* Brand */}
         {product.brand && (
-          <p className="text-xs text-gray-900 font-semibold">{product.brand}</p>
+          <Typography variant="caption" fontWeight="bold">
+            {product.brand}
+          </Typography>
         )}
 
-        {/* Product Title - bigger and black */}
-        <h3 className="text-base text-black font-semibold mt-1 line-clamp-2">
+        {/* Title */}
+        <Typography
+          variant="subtitle1"
+          fontWeight="600"
+          sx={{
+            mt: 0.5,
+            display: "-webkit-box",
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: "vertical",
+            overflow: "hidden",
+          }}
+        >
           {product.title}
-        </h3>
+        </Typography>
 
         {/* Category */}
         {product.category && (
-          <p className="text-xs text-gray-900 mt-2 capitalize">{product.category}</p>
+          <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5 }}>
+            {product.category}
+          </Typography>
         )}
 
-        {/* Short Description */}
+        {/* Description
         {product.description && (
-          <p className="text-xs text-gray-600 mt-1 line-clamp-3">{product.description}</p>
-        )}
+          <Typography
+            variant="body2"
+            color="text.secondary"
+            sx={{
+              mt: 0.5,
+              display: "-webkit-box",
+              WebkitLineClamp: 3,
+              WebkitBoxOrient: "vertical",
+              overflow: "hidden",
+            }}
+          >
+            {product.description}
+          </Typography>
+        )} */}
 
-        {/* Stock Status */}
-        <p
-          className={`text-xs font-semibold mt-1 ${
-            inStock ? "text-green-600" : "text-red-600"
-          }`}
+        {/* Stock */}
+        <Typography
+          variant="caption"
+          fontWeight="bold"
+          sx={{
+            mt: 1,
+            color: inStock ? "success.main" : "error.main",
+          }}
         >
           {inStock ? "In Stock" : "Out of Stock"}
-        </p>
+        </Typography>
 
-        {/* Price + MRP + Discount */}
-        <div className="flex items-center gap-2 mt-1">
-          <span className="text-sm font-semibold text-gray-900">
+        {/* Price */}
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1, mt: 1 }}>
+          <Typography variant="subtitle1" fontWeight="bold">
             ₹{product.price}
-          </span>
+          </Typography>
+
           {product.mrp && product.mrp > product.price && (
             <>
-              <span className="text-xs line-through text-gray-400">
+              <Typography
+                variant="caption"
+                sx={{ textDecoration: "line-through", color: "text.disabled" }}
+              >
                 ₹{product.mrp}
-              </span>
-              <span className="text-xs font-semibold text-pink-600">
-                {Math.round(((product.mrp - product.price) / product.mrp) * 100)}%
-              </span>
+              </Typography>
+              <Chip
+                label={`${discount}% OFF`}
+                size="small"
+                color="error"
+              />
             </>
           )}
-        </div>
+        </Box>
 
         {/* Rating */}
         {product.rating && (
-          <div className="flex items-center gap-1 mt-1">
-            <span className="text-yellow-500 text-xs">
-              {"★".repeat(Math.floor(product.rating))}
-            </span>
-            <span className="text-gray-400 text-xs">({product.rating})</span>
-          </div>
+          <Typography variant="caption" sx={{ mt: 0.5 }}>
+            ⭐ {product.rating}
+          </Typography>
         )}
 
-        {/* Additional Details */}
+        {/* Details */}
         {product.details && (
-          <ul className="text-xs text-gray-600 mt-1 list-disc list-inside line-clamp-3">
-            {product.details.map((detail, idx) => (
-              <li key={idx}>{detail}</li>
+          <Box component="ul" sx={{ mt: 1, pl: 2 }}>
+            {product.details.slice(0, 3).map((detail, idx) => (
+              <Typography key={idx} component="li" variant="caption">
+                {detail}
+              </Typography>
             ))}
-          </ul>
+          </Box>
         )}
+      </CardContent>
 
-        {/* Buy Now Button */}
-        <button
-          onClick={handleCardClick}
-          disabled={!inStock}
-          className={`mt-auto w-full border py-2 rounded text-sm font-semibold transition ${
-            inStock
-              ? "bg-white text-gray-800 border-gray-300 hover:bg-gray-100"
-              : "bg-gray-200 text-gray-500 cursor-not-allowed"
-          }`}
-        >
-          {inStock ? "Buy Now" : "Out of Stock"}
-        </button>
-      </div>
-    </div>
+      <Box sx={{ p: 2 }}>
+  <Button
+    fullWidth
+    variant="outlined"
+    disabled={!inStock}
+    onClick={handleCardClick}
+    sx={{
+      backgroundColor: "#ffffff",
+      color: "#6b7280",
+      borderColor: "#d1d5db",
+      fontWeight: 600,
+      "&:hover": {
+        backgroundColor: "#f9fafb",
+        borderColor: "#9ca3af",
+      },
+      "&.Mui-disabled": {
+        backgroundColor: "#f3f4f6",
+        color: "#9ca3af",
+        borderColor: "#e5e7eb",
+      },
+    }}
+  >
+    {inStock ? "Buy Now" : "Out of Stock"}
+  </Button>
+</Box>
+
+    </Card>
   );
 };
 

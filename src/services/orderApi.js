@@ -1,5 +1,3 @@
-
-
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { BASE_URL } from "./apiRoutes";
 
@@ -26,13 +24,13 @@ export const orderApi = createApi({
           throw new Error("Cart is empty or invalid");
         }
 
-        // Only send productId and quantity — backend does not need price
+        
         const formattedItems = items.map((item) => ({
           productId: item.productId || item.id,
           quantity: item.quantity || 1,
         }));
 
-        // Total price is optional, backend calculates anyway, but can send
+      
         const totalPrice = formattedItems.reduce(
           (total, item) => total + Number(item.price || 0) * (item.quantity || 1),
           0

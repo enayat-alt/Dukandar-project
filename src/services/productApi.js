@@ -1,8 +1,7 @@
-
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { BASE_URL, PRODUCT_ROUTES } from "./apiRoutes"; // ✅ centralized base URL & routes
+import { BASE_URL, PRODUCT_ROUTES } from "./apiRoutes"; 
 
-// Base query with token for protected routes
+
 const baseQueryWithAuth = fetchBaseQuery({
   baseUrl: BASE_URL,
   prepareHeaders: (headers) => {
