@@ -1,7 +1,7 @@
 
 import { createSlice } from '@reduxjs/toolkit';
 
-// ✅ Initialize from localStorage if available
+//  Initialize from localStorage if available
 const initialState = {
   admin: JSON.parse(localStorage.getItem('admin')) || null,
   token: localStorage.getItem('adminToken') || null,
@@ -18,7 +18,7 @@ const adminAuthSlice = createSlice({
       state.token = token;
       state.isLoggedIn = true;
 
-      // ✅ Save to localStorage
+      //  Save to localStorage
       localStorage.setItem('admin', JSON.stringify(admin));
       localStorage.setItem('adminToken', token);
     },
@@ -27,7 +27,7 @@ const adminAuthSlice = createSlice({
       state.token = null;
       state.isLoggedIn = false;
 
-      // ✅ Remove from localStorage
+      // Remove from localStorage
       localStorage.removeItem('admin');
       localStorage.removeItem('adminToken');
     },

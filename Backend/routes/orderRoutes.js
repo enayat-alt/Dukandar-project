@@ -25,17 +25,15 @@ const isAdmin = require('../middlewares/isAdmin'); // add this
 const router = express.Router();
 
 // ----------------- USER ROUTES -----------------
-// User → Get only their orders
+
 router.get('/', authMiddleware, getOrders);
 
-// User → Place order
 router.post('/', authMiddleware, createOrder);
 
-// User → Cancel order
 router.delete('/:id', authMiddleware, deleteOrder);
 
 // ----------------- ADMIN ROUTES -----------------
-// Admin → Get all orders
+
 router.get('/admin/all', authMiddleware, isAdmin, getOrders);
 
 module.exports = router;
