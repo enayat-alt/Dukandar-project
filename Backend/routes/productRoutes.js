@@ -5,7 +5,7 @@ const path = require('path');
 const {
   createProduct,
   getProducts,
-  getProductById, // import the new controller
+  getProductById, 
   updateProduct,
   deleteProduct,
 } = require('../controllers/productController');
@@ -25,10 +25,10 @@ if (!fs.existsSync(uploadDir)) {
 // Multer setup for image upload
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, uploadDir); // save images in uploads folder
+    cb(null, uploadDir); 
   },
   filename: function (req, file, cb) {
-    cb(null, Date.now() + '-' + file.originalname); // unique filename
+    cb(null, Date.now() + '-' + file.originalname); 
   },
 });
 const upload = multer({ storage });

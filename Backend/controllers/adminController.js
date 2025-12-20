@@ -17,7 +17,7 @@ exports.adminRegister = async (req, res) => {
       name,
       email,
       password: hashed,
-      role: "admin"  // Ensure role is admin
+      role: "admin"  
     });
 
     res.json({ message: "Admin created", admin });
