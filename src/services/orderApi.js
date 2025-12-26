@@ -1,16 +1,9 @@
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { BASE_URL } from "./apiRoutes";
+import { createApi } from "@reduxjs/toolkit/query/react";
+import { baseQueryWithReauth } from "./baseQueryWithReauth";
 
 export const orderApi = createApi({
   reducerPath: "orderApi",
-  baseQuery: fetchBaseQuery({
-    baseUrl: BASE_URL,
-    prepareHeaders: (headers, { getState }) => {
-      const token = getState().auth.token;
-      if (token) headers.set("Authorization", `Bearer ${token}`);
-      return headers;
-    },
-  }),
+  baseQuery: baseQueryWithReauth,
   tagTypes: ["Orders"],
   endpoints: (builder) => ({
     getUserOrders: builder.query({
@@ -24,15 +17,14 @@ export const orderApi = createApi({
           throw new Error("Cart is empty or invalid");
         }
 
-        
         const formattedItems = items.map((item) => ({
           productId: item.productId || item.id,
           quantity: item.quantity || 1,
         }));
 
-      
         const totalPrice = formattedItems.reduce(
-          (total, item) => total + Number(item.price || 0) * (item.quantity || 1),
+          (total, item) =>
+            total + Number(item.price || 0) * (item.quantity || 1),
           0
         );
 
