@@ -23,12 +23,21 @@ const Login = () => {
     try {
       const res = await login({ email, password }).unwrap();
 
-      if (!res?.user || !res?.token) {
+      // 🔹 MINIMAL CHANGE START
+      if (!res?.user || !res?.accessToken || !res?.refreshToken) {
         setError(res?.message || "Invalid credentials");
         return;
       }
 
-      dispatch(setCredentials({ user: res.user, token: res.token }));
+      dispatch(
+        setCredentials({
+          user: res.user,
+          accessToken: res.accessToken,
+          refreshToken: res.refreshToken,
+        })
+      );
+      
+
       navigate("/");
     } catch (err) {
       setError(err?.data?.message || "Login failed");
@@ -43,7 +52,6 @@ const Login = () => {
         transition={{ duration: 0.4 }}
         className="w-full max-w-sm bg-white rounded-2xl shadow-xl overflow-hidden"
       >
-        {/* Top Banner (Myntra Style) */}
         <div className="bg-gradient-to-r from-pink-500 to-rose-500 h-24"></div>
 
         <div className="p-6">
@@ -90,13 +98,13 @@ const Login = () => {
           </form>
 
           <p className="text-xs text-slate-500 mt-4 leading-relaxed">
-            By continuing, you agree to our{' '}
-            <span className="text-pink-600 font-medium">Terms of Use</span> and{' '}
+            By continuing, you agree to our{" "}
+            <span className="text-pink-600 font-medium">Terms of Use</span> and{" "}
             <span className="text-pink-600 font-medium">Privacy Policy</span>
           </p>
 
           <p className="mt-4 text-sm text-center text-slate-600">
-            New user?{' '}
+            New user?{" "}
             <Link to="/signup" className="text-pink-600 font-semibold">
               Create account
             </Link>

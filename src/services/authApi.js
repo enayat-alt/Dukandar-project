@@ -1,9 +1,10 @@
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { BASE_URL, AUTH_ROUTES } from "./apiRoutes"; 
+import { createApi } from "@reduxjs/toolkit/query/react";
+import { baseQueryWithReauth } from "./baseQueryWithReauth";
+import { AUTH_ROUTES } from "./apiRoutes";
 
 export const authApi = createApi({
   reducerPath: "authApi",
-  baseQuery: fetchBaseQuery({ baseUrl: BASE_URL }),
+  baseQuery: baseQueryWithReauth,
   endpoints: (builder) => ({
     register: builder.mutation({
       query: (user) => ({
@@ -12,6 +13,7 @@ export const authApi = createApi({
         body: user,
       }),
     }),
+
     login: builder.mutation({
       query: (user) => ({
         url: AUTH_ROUTES.LOGIN,
@@ -19,7 +21,19 @@ export const authApi = createApi({
         body: user,
       }),
     }),
+
+    refresh: builder.mutation({
+      query: (refreshToken) => ({
+        url: AUTH_ROUTES.REFRESH,
+        method: "POST",
+        body: { refreshToken },
+      }),
+    }),
   }),
 });
 
-export const { useRegisterMutation, useLoginMutation } = authApi;
+export const {
+  useRegisterMutation,
+  useLoginMutation,
+  useRefreshMutation,
+} = authApi;

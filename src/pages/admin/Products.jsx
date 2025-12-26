@@ -1,5 +1,4 @@
 
-
 import React, { useState } from "react";
 import {
   useGetProductsQuery,
@@ -16,6 +15,7 @@ const Products = () => {
     name: "",
     price: "",
     category: "",
+    stock: "",
     description: "",
     image: null,
   });
@@ -23,7 +23,6 @@ const Products = () => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  // Handle Add Product
   const handleAddProduct = async (e) => {
     e.preventDefault();
     setError("");
@@ -33,6 +32,7 @@ const Products = () => {
       !newProduct.name ||
       !newProduct.price ||
       !newProduct.category ||
+      newProduct.stock === "" ||
       !newProduct.description ||
       !newProduct.image
     ) {
@@ -44,6 +44,7 @@ const Products = () => {
     formData.append("name", newProduct.name);
     formData.append("price", newProduct.price);
     formData.append("category", newProduct.category);
+    formData.append("stock", newProduct.stock);
     formData.append("description", newProduct.description);
     formData.append("image", newProduct.image);
 
@@ -54,6 +55,7 @@ const Products = () => {
         name: "",
         price: "",
         category: "",
+        stock: "",
         description: "",
         image: null,
       });
@@ -62,7 +64,6 @@ const Products = () => {
     }
   };
 
-  // Handle Delete
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure to delete this product?")) {
       try {
@@ -73,23 +74,30 @@ const Products = () => {
     }
   };
 
-  if (isLoading) return <p className="text-center mt-4">Loading products...</p>;
-  if (isError) return <p className="text-center mt-4 text-red-500">Error loading products</p>;
+  if (isLoading)
+    return <p className="text-center mt-4">Loading products...</p>;
+  if (isError)
+    return (
+      <p className="text-center mt-4 text-red-500">
+        Error loading products
+      </p>
+    );
 
   return (
     <div className="max-w-6xl mx-auto mt-10">
       <h2 className="text-2xl font-bold mb-6">Admin Products</h2>
 
-      {/* Add Product Form */}
       <form
         onSubmit={handleAddProduct}
-        className="grid grid-cols-1 md:grid-cols-6 gap-4 mb-6 p-4 bg-white shadow rounded"
+        className="grid grid-cols-1 md:grid-cols-7 gap-4 mb-6 p-4 bg-white shadow rounded"
       >
         <input
           type="text"
           placeholder="Name"
           value={newProduct.name}
-          onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
+          onChange={(e) =>
+            setNewProduct({ ...newProduct, name: e.target.value })
+          }
           className="border p-2 rounded"
           required
         />
@@ -98,7 +106,21 @@ const Products = () => {
           type="number"
           placeholder="Price"
           value={newProduct.price}
-          onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })}
+          onChange={(e) =>
+            setNewProduct({ ...newProduct, price: e.target.value })
+          }
+          className="border p-2 rounded"
+          required
+        />
+
+        <input
+          type="number"
+          placeholder="Stock"
+          min="0"
+          value={newProduct.stock}
+          onChange={(e) =>
+            setNewProduct({ ...newProduct, stock: e.target.value })
+          }
           className="border p-2 rounded"
           required
         />
@@ -120,7 +142,7 @@ const Products = () => {
           onChange={(e) =>
             setNewProduct({ ...newProduct, description: e.target.value })
           }
-          className="border p-2 rounded col-span-1 md:col-span-2"
+          className="border p-2 rounded md:col-span-2"
           rows={2}
           required
         />
@@ -137,7 +159,7 @@ const Products = () => {
 
         <button
           type="submit"
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 md:col-span-6"
+          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 md:col-span-7"
         >
           Add Product
         </button>
@@ -146,7 +168,6 @@ const Products = () => {
       {error && <p className="text-red-500 mb-4">{error}</p>}
       {success && <p className="text-green-500 mb-4">{success}</p>}
 
-      {/* Products Table */}
       <div className="overflow-x-auto">
         <table className="min-w-full bg-white shadow rounded">
           <thead className="bg-gray-100">
@@ -155,6 +176,7 @@ const Products = () => {
               <th className="py-2 px-4 border">Name</th>
               <th className="py-2 px-4 border">Category</th>
               <th className="py-2 px-4 border">Price</th>
+              <th className="py-2 px-4 border">Stock</th>
               <th className="py-2 px-4 border">Description</th>
               <th className="py-2 px-4 border">Image</th>
               <th className="py-2 px-4 border">Actions</th>
@@ -167,13 +189,14 @@ const Products = () => {
                 <td className="py-2 px-4 border">{p.name}</td>
                 <td className="py-2 px-4 border">{p.category}</td>
                 <td className="py-2 px-4 border">₹{p.price}</td>
+                <td className="py-2 px-4 border">{p.stock}</td>
                 <td className="py-2 px-4 border max-w-xs text-sm text-gray-700">
                   {p.description}
                 </td>
                 <td className="py-2 px-4 border">
                   {p.image && (
                     <img
-                      src={`http://localhost:5000/${p.image}`}
+                      src={p.image}
                       alt={p.name}
                       className="w-16 h-16 object-cover mx-auto rounded"
                     />
