@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import { useCart } from "../context/CartContext.jsx";
+import { useCart } from "../context/cartContext.jsx";
 import { useNavigate } from "react-router-dom";
 import { Snackbar, Alert } from "@mui/material";
 import { usePlaceOrderMutation } from "../services/orderApi";
