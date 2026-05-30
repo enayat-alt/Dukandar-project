@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { useCart } from "../context/CartContext.jsx";
+import { useCart } from "../context/cartContext.jsx";
 import { useSelector } from "react-redux";
 import { useGetProductsQuery } from "../services/productApi";
 import { Snackbar, Alert, IconButton } from "@mui/material";

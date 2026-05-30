@@ -16,7 +16,7 @@ import { TextField, InputAdornment, IconButton } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 
 // Cart Context
-import { useCart } from "../context/CartContext";
+import { useCart } from "../context/cartContext";
 
 const Navbar = () => {
   const user = useSelector((state) => state.auth.user);

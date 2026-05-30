@@ -1,7 +1,7 @@
 
 
 import React, { useState } from "react";
-import { useCart } from "../context/CartContext.jsx";
+import { useCart } from "../context/cartContext.jsx";
 import { usePlaceOrderMutation } from "../services/orderApi";
 import { Elements, CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
